@@ -1,30 +1,51 @@
 <?php 
-    $coon = new PDO("sqlsrv:server=localhost\SQLEXPRESS;connectionPooling=0;Database=teste","sa","root");
-   
-    //$stmt = $coon->prepare("insert into usuario(nome) values(:NOME)");
-    //$stmt = $coon->prepare("update usuario set nome = :NOME where idusuario = :ID");
-	$stmt = $coon->prepare("delete from usuario where idusuario = :ID");
+    
+    class Usuario{
+      private $idusuario;
+      private $nome;
+      private $dtcadastro;
 
-    $id=3;
-    //$nome='Gustavo';
-    //$stmt->bindParam(":NOME",$nome);
-    $stmt->bindParam(":ID",$id);
+      public function getIdusuario(){
+        return $this->idusuario;
+      }
+       public function getNome(){
+        return $this->nome;
+      }
+       public function getDtcadastro(){
+        return $this->dtcadastro;
+      }
+      public function setIdusuario($idusuario){
+        $this->idusuario = $idusuario;
+      }
+       public function setNome($nome){
+        $this->nome = $nome;
+      }
+       public function setDtcadastro($dtcadastro){
+        $this->dtcadastro = $dtcadastro;
+      }
 
-    $stmt->execute();
+      public function getId($id){
+        $sql = new Sql();
+        $result = $sql->select("SELECT * FROM usuario WHERE idusuario = :ID",array(':ID' => $id));
 
-    $stmt = $coon->prepare("Select * from usuario");
-    $stmt->execute();
+        if(count($result) > 0){
+          $row = $result[0];
 
-   	$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-   	echo json_encode($result);
-   	
+          $this->setIdusuario($row['idusuario']);
+          $this->setNome($row['nome']);
+          $this->setDtcadastro(new Datetime($row['dtcadastro']));
+        }
+        
+      }
 
-   	/*foreach($result as $row){
-   		foreach ($row as $key => $value) {
-   			echo $key.": ".$value."<br>";
-   		}
-   		echo "-----------------------------------<br>";
-   	}*/
+      public function __toString(){
+        return json_encode(array(
+            'idusuario' => $this->getIdusuario(),
+            'nome' => $this->getNome(),
+            'dtcadastro' => $this->getDtcadastro()->format('d/m/Y H:i') 
 
+             ));
+      }
+    }
 
     ?>
